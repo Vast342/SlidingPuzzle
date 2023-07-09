@@ -1,4 +1,4 @@
-  /* //<>//
+/* //<>//
   The goal here is to create a sliding puzzle and then eventually train an ai to solve it, somehow
  something something genetic algorithm,
  something something inputs being the state of the board
