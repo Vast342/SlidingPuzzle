@@ -17,6 +17,8 @@ boolean solvable;
 int inversions;
 // the current grid position of the empty square
 int[] zeroSpot = new int[2];
+int populationSize = 100;
+puzzle[] populationPuzzles = new puzzle[populationSize];
 
 void setup() {
   for (int i = 0; i < gridSize; i++) {
@@ -29,6 +31,9 @@ void setup() {
     }
   }
   shuffleArray();
+  for (int i = 0; i < populationSize; i++) {
+    populationPuzzles[i] = new puzzle(startingState, zeroSpot);
+  }
 }
 
 // shuffles the array at the beginning by loading all values into one array and using the ficher-yates/knuth shuffle
@@ -94,9 +99,9 @@ void solveableCheck() {
   // detect even or odd gridSize
   if (gridSize % 2 == 0) {
     // detects if either thing is true
-    if ((gridSize - zeroPos[1]) % 2 == 0 && inversions % 2 != 0) {
+    if ((gridSize - zeroSpot[1]) % 2 == 0 && inversions % 2 != 0) {
       solvable = true;
-    } else if ((gridSize - zeroPos[1]) % 2 != 0 && inversions % 2 == 0) {
+    } else if ((gridSize - zeroSpot[1]) % 2 != 0 && inversions % 2 == 0) {
       solvable = true;
     }
   } else {
@@ -110,16 +115,27 @@ void solveableCheck() {
     shuffleArray();
   }
 }
+
 void draw() {
 }
 
+void swapArrayValues(int[][] puzzle, int row1, int position1, int row2, int position2) {
+  temp = puzzle[row1][position1];
+  puzzle[row1][position1] = puzzle[row2][position2];
+  puzzle[row2][position2] = temp;
+}
+
+// the class for the puzzle, with a bunch of subvalues and such that store the state of the puzzle.
 class puzzle {
+  // the current puzzle state
   int[][] state = new int[gridSize][gridSize];
   int[] zeroPos = new int[2];
   int[][] validMoves = new int[4][2];
+  boolean[] canMove = new boolean[4];
+  int moves = 0;
   puzzle (int[][] startState, int[] zeroPo) {
     state = startState;
-    zeroPos = zeroPo
+    zeroPos = zeroPo;
   }
   // updates the valid moves
   void moveUpdate() {
@@ -140,22 +156,31 @@ class puzzle {
         }
       }
     }
+    for (var l = 0; l < 4; l++) {
+      if (validMoves[l][0] != -10 && validMoves[l][1] != -10) {
+        fill(200, 0, 255);
+        canMove[l] = true;
+      } else {
+        fill(255, 0, 0);
+        canMove[l] = false;
+      }
+    }
   }
   void move(int direction) {
     if (direction == 0 && canMove[3] == true) {
-      swapArrayValues(zeroPos[1]-1, zeroPos[0], zeroPos[1], zeroPos[0]);
+      swapArrayValues(state, zeroPos[1]-1, zeroPos[0], zeroPos[1], zeroPos[0]);
       zeroPos[0] = zeroPos[0];
       zeroPos[1] = zeroPos[1]-1;
     } else if (direction == 1 && canMove[0] == true) {
-      swapArrayValues(zeroPos[1], zeroPos[0]+1, zeroPos[1], zeroPos[0]);
+      swapArrayValues(state, zeroPos[1], zeroPos[0]+1, zeroPos[1], zeroPos[0]);
       zeroPos[0] = zeroPos[0]+1;
       zeroPos[1] = zeroPos[1];
     } else if (direction == 2 && canMove[2] == true) {
-      swapArrayValues(zeroPos[1]+1, zeroPos[0], zeroPos[1], zeroPos[0]);
+      swapArrayValues(state, zeroPos[1]+1, zeroPos[0], zeroPos[1], zeroPos[0]);
       zeroPos[0] = zeroPos[0];
       zeroPos[1] = zeroPos[1]+1;
     } else if (direction == 3 && canMove[1] == true) {
-      swapArrayValues(zeroPos[1], zeroPos[0]-1, zeroPos[1], zeroPos[0]);
+      swapArrayValues(state, zeroPos[1], zeroPos[0]-1, zeroPos[1], zeroPos[0]);
       zeroPos[0] = zeroPos[0]-1;
       zeroPos[1] = zeroPos[1];
     }
